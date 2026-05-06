@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import AppLayout from "./AppLayout";
+import AppLayout from "./appLayout"; // Mudei de AppLayout para appLayout
 import LoadingScreen from "./LoadingScreen";
 
 export function ProtectedRoute({ children, roles }) {
