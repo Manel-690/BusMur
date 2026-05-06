@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #1d4ed8;
+  --primary-light: #3b82f6;
+  --primary-hover: #1e40af;
+  --accent: #0ea5e9;
+  --success: #059669;
+  --warning: #d97706;
+  --danger: #dc2626;
+}
+
+body {
+  font-family: "DM Sans", sans-serif;
+  @apply bg-gray-50 text-gray-800 antialiased;
+}
+
+html.dark body {
+  @apply bg-[#080c14] text-gray-100;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-light) transparent;
+}
+*::-webkit-scrollbar { width: 5px; }
+*::-webkit-scrollbar-thumb { background: var(--primary-light); border-radius: 999px; }
+
+.mono { font-family: "Space Mono", monospace; }
+
+.glass {
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+.dark .glass {
+  background: rgba(10, 20, 40, 0.65);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.card {
+  @apply bg-white dark:bg-[#0f1827] rounded-2xl border border-gray-100 dark:border-gray-800/60 shadow-sm;
+}
+
+.card-hover {
+  @apply transition-all duration-200;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgb(59 130 246 / 0.08), 0 4px 6px -4px rgb(59 130 246 / 0.08);
+}
+
+.gradient-primary {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+}
+
+.btn-primary {
+  @apply flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-white text-sm transition-all;
+  background: var(--primary);
+}
+.btn-primary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 15px -3px rgb(59 130 246 / 0.25);
+}
+
+.btn-secondary {
+  @apply flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700;
+}
+
+.input-field {
+  @apply w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60 text-gray-800 dark:text-gray-100 text-sm outline-none transition-all;
+  font-family: "DM Sans", sans-serif;
+}
+.input-field:focus {
+  @apply border-blue-400 dark:border-blue-500;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.map-bg {
+  background-color: #e8f0fe;
+  background-image:
+    linear-gradient(rgba(100,150,255,0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(100,150,255,0.08) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+.dark .map-bg {
+  background-color: #0b1629;
+  background-image:
+    linear-gradient(rgba(59,130,246,0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59,130,246,0.07) 1px, transparent 1px);
+}
+
+/* ─── RESPONSIVO ─── */
+@media (max-width: 768px) {
+  .card { @apply rounded-xl; }
+  .input-field { @apply py-3 text-base; }
+  .btn-primary, .btn-secondary { @apply py-3 px-4 text-sm; }
+}

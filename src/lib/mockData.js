@@ -1,0 +1,93 @@
+// 🚌 DADOS MOCK — BusMur
+
+export const LINHAS = [
+  {
+    id: "001",
+    numero: "001",
+    nome: "Centro → Hospital Regional",
+    cor: "#1d4ed8",
+    status: "ativa",
+    tempo_espera: "8 min",
+    lotacao: "média",
+    passageiros: 23,
+    motorista: "João Pereira",
+    paradas: ["Terminal Central", "Praça Antônio Carlos", "Rua XV de Novembro", "Shopping Muriaé", "UPA Muriaé", "Hospital Regional"],
+    horarios: ["05:30","06:00","06:30","07:00","07:30","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","17:30","18:00","18:30","19:00","20:00","21:00","22:00"],
+    frequencia: "30 min",
+  },
+  {
+    id: "002",
+    numero: "002",
+    nome: "Bairro São Paulo → Terminal",
+    cor: "#0ea5e9",
+    status: "ativa",
+    tempo_espera: "12 min",
+    lotacao: "alta",
+    passageiros: 41,
+    motorista: "Carlos Mendes",
+    paradas: ["Bairro São Paulo", "Av. Expedicionário", "Mercado Municipal", "Praça Central", "Terminal Central"],
+    horarios: ["05:45","06:15","07:00","07:30","08:00","09:30","11:00","13:00","15:00","17:00","18:30","20:00","22:00"],
+    frequencia: "45 min",
+  },
+  {
+    id: "003",
+    numero: "003",
+    nome: "Laranjal → UFJF Campus",
+    cor: "#059669",
+    status: "ativa",
+    tempo_espera: "21 min",
+    lotacao: "baixa",
+    passageiros: 9,
+    motorista: "Ana Beatriz",
+    paradas: ["Laranjal", "Bairro Industrial", "SENAI", "BR-116", "UFJF Campus Muriaé"],
+    horarios: ["06:00","07:00","08:00","12:00","13:00","17:30","18:30","22:00"],
+    frequencia: "60 min",
+  },
+  {
+    id: "004",
+    numero: "004",
+    nome: "Santa Terezinha → Centro",
+    cor: "#d97706",
+    status: "atrasada",
+    tempo_espera: "35 min",
+    lotacao: "média",
+    passageiros: 18,
+    motorista: "Roberto Lima",
+    paradas: ["Santa Terezinha", "Vila Nova", "Av. Presidente Vargas", "Rua Frei Rosário", "Centro"],
+    horarios: ["05:30","06:30","07:30","09:00","11:00","13:00","15:00","17:00","19:00","21:00"],
+    frequencia: "60 min",
+    motivo_atraso: "Trânsito intenso na Av. Presidente Vargas",
+  },
+  {
+    id: "005",
+    numero: "005",
+    nome: "Aeroporto → Terminal",
+    cor: "#7c3aed",
+    status: "inativa",
+    tempo_espera: null,
+    lotacao: null,
+    passageiros: 0,
+    motorista: null,
+    paradas: ["Aeroporto Reg. Muriaé", "BR-116 Norte", "Bairro Aeroporto", "Terminal Central"],
+    horarios: ["06:00","10:00","14:00","18:00","22:00"],
+    frequencia: "4h",
+  },
+];
+
+export const MOTORISTAS_PENDENTES = [
+  { id: "d1", name: "Felipe Cardoso", email: "felipe@email.com", cpf: "111.222.333-44", cnh: "CNH_IMG_URL", submitted_at: "2025-04-28", status: "pending" },
+  { id: "d2", name: "Priscila Nunes", email: "priscila@email.com", cpf: "555.666.777-88", cnh: "CNH_IMG_URL", submitted_at: "2025-04-27", status: "pending" },
+];
+
+export const MOTORISTAS_APROVADOS = [
+  { id: "d3", name: "João Pereira", email: "joao@email.com", linha: "001", status: "online", lat: -21.12, lng: -42.37 },
+  { id: "d4", name: "Carlos Mendes", email: "carlos@email.com", linha: "002", status: "online", lat: -21.13, lng: -42.36 },
+  { id: "d5", name: "Ana Beatriz", email: "ana@email.com", linha: "003", status: "online", lat: -21.11, lng: -42.38 },
+  { id: "d6", name: "Roberto Lima", email: "roberto@email.com", linha: "004", status: "online", lat: -21.125, lng: -42.365 },
+];
+
+export const NOTIFICACOES = [
+  { id: "n1", tipo: "atraso", linha: "004", mensagem: "Linha 004 com atraso de ~20 min.", motivo: "Trânsito intenso", time: "há 5 min", lida: false },
+  { id: "n2", tipo: "info", linha: "001", mensagem: "Linha 001 operando normalmente.", motivo: null, time: "há 12 min", lida: false },
+  { id: "n3", tipo: "atraso", linha: "002", mensagem: "Linha 002 — lotação alta.", motivo: "Pico de horário", time: "há 30 min", lida: true },
+];
