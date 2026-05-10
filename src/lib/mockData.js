@@ -11,9 +11,12 @@ export const LINHAS = [
     lotacao: "média",
     passageiros: 23,
     motorista: "João Pereira",
+    trocaMotorista: "14:00",
     paradas: ["Terminal Central", "Praça Antônio Carlos", "Rua XV de Novembro", "Shopping Muriaé", "UPA Muriaé", "Hospital Regional"],
     horarios: ["05:30","06:00","06:30","07:00","07:30","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","17:30","18:00","18:30","19:00","20:00","21:00","22:00"],
+    horariosFimDeSemana: ["06:00","07:00","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"],
     frequencia: "30 min",
+    funcionaFimDeSemana: true,
   },
   {
     id: "002",
@@ -25,9 +28,12 @@ export const LINHAS = [
     lotacao: "alta",
     passageiros: 41,
     motorista: "Carlos Mendes",
+    trocaMotorista: "15:30",
     paradas: ["Bairro São Paulo", "Av. Expedicionário", "Mercado Municipal", "Praça Central", "Terminal Central"],
     horarios: ["05:45","06:15","07:00","07:30","08:00","09:30","11:00","13:00","15:00","17:00","18:30","20:00","22:00"],
+    horariosFimDeSemana: ["06:30","08:00","09:30","11:00","13:00","15:00","17:00","19:00","21:00"],
     frequencia: "45 min",
+    funcionaFimDeSemana: true,
   },
   {
     id: "003",
@@ -39,9 +45,12 @@ export const LINHAS = [
     lotacao: "baixa",
     passageiros: 9,
     motorista: "Ana Beatriz",
+    trocaMotorista: "12:00",
     paradas: ["Laranjal", "Bairro Industrial", "SENAI", "BR-116", "UFJF Campus Muriaé"],
     horarios: ["06:00","07:00","08:00","12:00","13:00","17:30","18:30","22:00"],
+    horariosFimDeSemana: ["08:00","10:00","13:00","17:00","20:00"],
     frequencia: "60 min",
+    funcionaFimDeSemana: true,
   },
   {
     id: "004",
@@ -53,10 +62,13 @@ export const LINHAS = [
     lotacao: "média",
     passageiros: 18,
     motorista: "Roberto Lima",
+    trocaMotorista: "16:00",
     paradas: ["Santa Terezinha", "Vila Nova", "Av. Presidente Vargas", "Rua Frei Rosário", "Centro"],
     horarios: ["05:30","06:30","07:30","09:00","11:00","13:00","15:00","17:00","19:00","21:00"],
+    horariosFimDeSemana: [],
     frequencia: "60 min",
     motivo_atraso: "Trânsito intenso na Av. Presidente Vargas",
+    funcionaFimDeSemana: false,
   },
   {
     id: "005",
@@ -68,16 +80,16 @@ export const LINHAS = [
     lotacao: null,
     passageiros: 0,
     motorista: null,
+    trocaMotorista: null,
     paradas: ["Aeroporto Reg. Muriaé", "BR-116 Norte", "Bairro Aeroporto", "Terminal Central"],
     horarios: ["06:00","10:00","14:00","18:00","22:00"],
+    horariosFimDeSemana: [],
     frequencia: "4h",
+    funcionaFimDeSemana: false,
   },
 ];
 
-export const MOTORISTAS_PENDENTES = [
-  { id: "d1", name: "Felipe Cardoso", email: "felipe@email.com", cpf: "111.222.333-44", cnh: "CNH_IMG_URL", submitted_at: "2025-04-28", status: "pending" },
-  { id: "d2", name: "Priscila Nunes", email: "priscila@email.com", cpf: "555.666.777-88", cnh: "CNH_IMG_URL", submitted_at: "2025-04-27", status: "pending" },
-];
+export const MOTORISTAS_PENDENTES = [];
 
 export const MOTORISTAS_APROVADOS = [
   { id: "d3", name: "João Pereira", email: "joao@email.com", linha: "001", status: "online", lat: -21.12, lng: -42.37 },
