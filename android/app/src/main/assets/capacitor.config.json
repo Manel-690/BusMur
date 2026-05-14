@@ -1,0 +1,8 @@
+{
+	"appId": "com.busmur.app",
+	"appName": "BusMur",
+	"webDir": "dist",
+	"server": {
+		"androidScheme": "https"
+	}
+}
