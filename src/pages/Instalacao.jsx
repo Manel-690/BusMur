@@ -1,13 +1,8 @@
 import { Download, MapPin, Clock, ShieldCheck } from "lucide-react";
 
 export default function Instalacao() {
-  const handleDownload = () => {
-    // Aqui no futuro colocaremos o link do arquivo .apk gerado pelo Capacitor
-    alert("O download do BusMur.apk começará em breve!");
-  };
-
   return (
-    <div className="min-h-screen bg-[#121212] text-white flex flex-col items-center justify-center p-6 font-sans">
+    <div className="min-h-screen bg-[#121212] text-white flex flex-col items-center justify-center p-6 font-sans relative overflow-hidden">
       
       {/* Círculos decorativos de fundo */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl -z-10"></div>
@@ -28,14 +23,15 @@ export default function Instalacao() {
           Baixe o aplicativo oficial e acompanhe seu ônibus em tempo real. Chega de esperar no ponto sem saber quando ele vai passar.
         </p>
 
-        {/* Botão de Download */}
-        <button 
-          onClick={handleDownload}
-          className="bg-[#deff9a] hover:bg-[#cbf575] text-[#121212] font-bold text-lg md:text-xl py-4 px-10 rounded-full shadow-[0_0_20px_rgba(222,255,154,0.3)] transition-all hover:scale-105 flex items-center justify-center gap-3 mx-auto w-full md:w-auto"
+        {/* Botão de Download Real */}
+        <a 
+          href="/busmur.apk" 
+          download="BusMur.apk"
+          className="bg-[#deff9a] hover:bg-[#cbf575] text-[#121212] font-bold text-lg md:text-xl py-4 px-10 rounded-full shadow-[0_0_20px_rgba(222,255,154,0.3)] transition-all hover:scale-105 flex items-center justify-center gap-3 mx-auto w-full md:w-auto inline-flex"
         >
           <Download size={24} />
           Baixar para Android (.apk)
-        </button>
+        </a>
 
         <p className="text-sm text-gray-500 mt-2">
           Versão 1.0.0 | Requer Android 8.0 ou superior
