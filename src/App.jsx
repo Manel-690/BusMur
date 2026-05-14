@@ -14,6 +14,7 @@ import Notificacoes from "./pages/Notificacoes";
 import PainelMotorista from "./pages/PainelMotorista";
 import AdminPanel from "./pages/AdminPanel";
 import Configuracoes from "./pages/Configuracoes";
+import Instalacao from "./pages/Instalacao"; // <-- Importação adicionada
 
 export default function App() {
   return (
@@ -28,10 +29,13 @@ export default function App() {
             }}
           />
           <Routes>
+            {/* Rotas Públicas */}
             <Route path="/login" element={<Login />} />
             <Route path="/cadastro-usuario" element={<CadastroUsuario />} />
             <Route path="/cadastro-motorista" element={<CadastroMotorista />} />
+            <Route path="/instalar" element={<Instalacao />} /> {/* <-- Rota adicionada */}
 
+            {/* Rotas Protegidas */}
             <Route path="/linhas" element={<ProtectedRoute><Linhas /></ProtectedRoute>} />
             <Route path="/linhas/:id" element={<ProtectedRoute><LinhaDetalhe /></ProtectedRoute>} />
             <Route path="/mapa" element={<ProtectedRoute><Mapa /></ProtectedRoute>} />
@@ -40,6 +44,7 @@ export default function App() {
             <Route path="/admin" element={<ProtectedRoute roles={["admin"]}><AdminPanel /></ProtectedRoute>} />
             <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
 
+            {/* Redirecionamentos padrão */}
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>

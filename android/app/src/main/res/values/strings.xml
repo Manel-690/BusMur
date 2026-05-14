@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">BusMur</string>
+    <string name="title_activity_main">BusMur</string>
+    <string name="package_name">com.busmur.app</string>
+    <string name="custom_url_scheme">com.busmur.app</string>
+</resources>

@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 export function useProfile(user) {
   const [loading, setLoading] = useState(false);
 
-  const updateProfile = async ({ name, phone, avatarFile }) => {
+  const updateProfile = async ({ name, avatarFile }) => {
     setLoading(true);
     console.log("Iniciando atualização para o ID:", user?.id);
 
@@ -28,33 +28,27 @@ export function useProfile(user) {
         avatar_url = data.publicUrl;
       }
 
-      // 2. Preparar objeto de atualização conforme as colunas do seu banco
+      // 2. Preparar objeto de atualização
+      // Apenas Nome e Foto são editáveis aqui
       const updates = {
         name: name,
-        phone: phone,
-        updated_at: new Date().toISOString(), // Necessário conforme erro no console
+        updated_at: new Date().toISOString(),
       };
 
-      // Só adiciona avatar_url se ele foi gerado acima
       if (avatar_url) {
         updates.avatar_url = avatar_url;
       }
 
-      console.log("Enviando PATCH para o banco com dados:", updates);
+      console.log("Enviando dados para o Supabase:", updates);
 
-      // 3. Executar o UPDATE (Garante a alteração na linha existente)
-      const { data: responseData, error } = await supabase
+      // 3. Executar o UPDATE
+      const { error } = await supabase
         .from('profiles')
         .update(updates)
-        .eq('id', user.id) // Filtra pelo seu ID de administrador
-        .select();
+        .eq('id', user.id);
 
-      if (error) {
-        console.error("Erro do Supabase:", error);
-        throw error;
-      }
+      if (error) throw error;
 
-      console.log("Sucesso no banco:", responseData);
       toast.success('Perfil atualizado com sucesso!');
       return true;
 
@@ -68,4 +62,4 @@ export function useProfile(user) {
   };
 
   return { updateProfile, loading };
-} 
+}
