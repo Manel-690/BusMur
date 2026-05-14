@@ -2,7 +2,7 @@ name: Build Android APK
 
 on:
   push:
-    branches: [ main, master ] # O robô vai trabalhar sempre que você der push nessas branches
+    branches: [ main, master ]
 
 jobs:
   build:
@@ -10,16 +10,16 @@ jobs:
 
     steps:
       - name: Checkout do código
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Configurar Java (necessário para Android)
-        uses: actions/setup-java@v3
+      - name: Configurar Java
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
 
       - name: Configurar Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
 
@@ -29,17 +29,25 @@ jobs:
       - name: Gerar Build do React
         run: npm run build
 
-      - name: Sincronizar com Capacitor
+      - name: Instalar plataformas nativas no robô
         run: |
+          npx cap add android || true
           npx cap sync android
 
-      - name: Dar permissão ao Gradle (o motor do Android)
-        run: chmod +x android/gradlew
-        working-directory: android
+      - name: Dar permissão ao Gradle
+        run: |
+          if [ -f "android/gradlew" ]; then
+            chmod +x android/gradlew
+          else
+            echo "Gradlew não encontrado, tentando gerar via Capacitor..."
+            npx cap sync android
+            chmod +x android/gradlew
+          fi
 
       - name: Construir APK (Debug)
-        run: ./gradlew assembleDebug
-        working-directory: android
+        run: |
+          cd android
+          ./gradlew assembleDebug
 
       - name: Upload do APK final
         uses: actions/upload-artifact@v4
