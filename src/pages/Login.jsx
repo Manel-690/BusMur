@@ -145,6 +145,17 @@ export default function Login() {
             <p className="text-sm text-gray-500 dark:text-gray-400">Não tem conta? <Link to="/cadastro-usuario" className="text-blue-500 font-semibold hover:text-blue-600">Cadastre-se</Link></p>
             <p className="text-sm text-gray-500 dark:text-gray-400">Motorista? <Link to="/cadastro-motorista" className="text-blue-500 font-semibold hover:text-blue-600">Solicite seu cadastro</Link></p>
           </div>
+
+          {/* NOVO BOTÃO DE INSTALAÇÃO NO LOGIN */}
+          <div className="mt-4 px-2">
+            <Link to="/instalar" className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-dashed border-gray-300 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/10 hover:border-blue-300 transition-all group">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5 text-gray-400 group-hover:text-blue-500">
+                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>
+              </svg>
+              <span className="text-xs font-bold text-gray-600 dark:text-gray-400 group-hover:text-blue-600">Instalar App BusMur no Celular</span>
+            </Link>
+          </div>
+
         </div>
         <p className="text-center text-xs text-gray-400 mt-6">© {new Date().getFullYear()} BusMur — Prefeitura de Muriaé</p>
       </div>
