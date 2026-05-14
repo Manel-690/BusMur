@@ -26,28 +26,18 @@ jobs:
       - name: Instalar Dependências
         run: npm install
 
-      - name: Gerar Build do React
+      - name: Gerar Build do React (Vite)
         run: npm run build
 
-      - name: Instalar plataformas nativas no robô
+      - name: Sincronizar Capacitor
         run: |
-          npx cap add android || true
           npx cap sync android
 
-      - name: Dar permissão ao Gradle
-        run: |
-          if [ -f "android/gradlew" ]; then
-            chmod +x android/gradlew
-          else
-            echo "Gradlew não encontrado, tentando gerar via Capacitor..."
-            npx cap sync android
-            chmod +x android/gradlew
-          fi
-
-      - name: Construir APK (Debug)
+      - name: Dar permissão ao Gradle e Build
         run: |
           cd android
-          ./gradlew assembleDebug
+          chmod +x gradlew
+          ./gradlew clean assembleDebug
 
       - name: Upload do APK final
         uses: actions/upload-artifact@v4
