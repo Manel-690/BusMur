@@ -4,7 +4,6 @@ import Badge from "../components/Badge";
 import MapView from "../components/MapView";
 import toast from "react-hot-toast";
 
-// Ícones SVG modernos
 const Ic = {
   pending: (
     <svg
@@ -118,6 +117,22 @@ const Ic = {
       <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
     </svg>
   ),
+  trash: (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="w-4 h-4"
+    >
+      <polyline points="3 6 5 6 21 6"></polyline>
+      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+      <line x1="10" y1="11" x2="10" y2="17"></line>
+      <line x1="14" y1="11" x2="14" y2="17"></line>
+    </svg>
+  ),
   check: (
     <svg
       viewBox="0 0 24 24"
@@ -178,8 +193,9 @@ export default function AdminPanel() {
   const [loading, setLoading] = useState(true);
   const [cnhModal, setCnhModal] = useState(null);
 
-  // Estados para criação de novas linhas
+  // Estados para Criação/Edição de Linhas
   const [showAddLineModal, setShowAddLineModal] = useState(false);
+  const [editingLineId, setEditingLineId] = useState(null); // Se tiver ID, estamos editando
   const [lineCode, setLineCode] = useState("");
   const [lineName, setLineName] = useState("");
   const [lineSchedule, setLineSchedule] = useState("");
@@ -190,83 +206,120 @@ export default function AdminPanel() {
   }, []);
 
   async function fetchData() {
-    const { data: pending } = await supabase
+    const { data: drivers } = await supabase
       .from("profiles")
       .select("*")
       .eq("role", "driver")
-      .eq("driver_status", "pending");
-    const { data: approved } = await supabase
-      .from("profiles")
+      .in("driver_status", ["pending", "approved", "rejected"]);
+    const { data: linesData } = await supabase
+      .from("linhas")
       .select("*")
-      .eq("role", "driver")
-      .eq("driver_status", "approved");
-    const { data: rejected } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("role", "driver")
-      .eq("driver_status", "rejected");
-    const { data: lines } = await supabase.from("lines").select("*");
-    setPendentes(pending || []);
-    setAprovados(approved || []);
-    setRejeitados(rejected || []);
-    setLinhas(lines || []);
+      .order("codigo", { ascending: true });
+
+    setPendentes(drivers?.filter((d) => d.driver_status === "pending") || []);
+    setAprovados(drivers?.filter((d) => d.driver_status === "approved") || []);
+    setRejeitados(drivers?.filter((d) => d.driver_status === "rejected") || []);
+    setLinhas(linesData || []);
     setLoading(false);
   }
 
-  async function aprovar(id) {
+  async function updateStatus(id, status, msg, isError = false) {
     await supabase
       .from("profiles")
-      .update({ driver_status: "approved" })
+      .update({ driver_status: status })
       .eq("id", id);
-    toast.success("Motorista aprovado!");
+    isError ? toast.error(msg) : toast.success(msg);
     fetchData();
   }
 
-  async function rejeitar(id) {
-    await supabase
-      .from("profiles")
-      .update({ driver_status: "rejected" })
-      .eq("id", id);
-    toast.error("Motorista rejeitado.");
-    fetchData();
-  }
-
-  async function handleCreateLine(e) {
+  // Função unificada para Salvar (Criar ou Atualizar)
+  async function handleSaveLine(e) {
     e.preventDefault();
-    if (!lineCode.trim() || !lineName.trim()) {
+    if (!lineCode.trim() || !lineName.trim())
       return toast.error("Preencha ao menos o código e o nome da linha!");
-    }
 
     setSubmittingLine(true);
-    const { error } = await supabase.from("lines").insert([
-      {
-        code: lineCode.trim(),
-        name: lineName.trim(),
-        schedule: lineSchedule.trim() || "Horários não definidos",
-        status: "ativa",
-      },
-    ]);
+
+    const payload = {
+      codigo: lineCode.trim(),
+      nome: lineName.trim(),
+      horario: lineSchedule.trim() || "Horários não definidos",
+    };
+
+    let error = null;
+
+    if (editingLineId) {
+      // Modo Edição: Atualiza os dados existentes
+      const response = await supabase
+        .from("linhas")
+        .update(payload)
+        .eq("id", editingLineId);
+      error = response.error;
+    } else {
+      // Modo Criação: Insere um novo registro
+      payload.status = "ativa";
+      const response = await supabase.from("linhas").insert([payload]);
+      error = response.error;
+    }
 
     setSubmittingLine(false);
 
     if (error) {
-      toast.error("Erro ao criar linha: " + error.message);
+      toast.error("Erro ao salvar linha: " + error.message);
     } else {
-      toast.success("Nova linha cadastrada com sucesso!");
-      setShowAddLineModal(false);
-      setLineCode("");
-      setLineName("");
-      setLineSchedule("");
+      toast.success(
+        editingLineId
+          ? "Linha atualizada com sucesso!"
+          : "Nova linha cadastrada com sucesso!",
+      );
+      closeLineModal();
       fetchData();
     }
   }
 
-  const getCnhUrl = (fileName) => {
-    if (!fileName) return "";
-    if (fileName.startsWith("http")) return fileName;
-    return supabase.storage.from("driver-docs").getPublicUrl(fileName).data
-      .publicUrl;
-  };
+  // Abrir modal configurado para edição
+  function openEditModal(linha) {
+    setEditingLineId(linha.id);
+    setLineCode(linha.codigo);
+    setLineName(linha.nome);
+    setLineSchedule(
+      linha.horario === "Horários não definidos" ? "" : linha.horario,
+    );
+    setShowAddLineModal(true);
+  }
+
+  // Função para deletar uma linha com verificação
+  async function handleDeleteLine(id, codigo) {
+    const confirmDelete = window.confirm(
+      `Tem certeza que deseja excluir permanentemente a linha ${codigo}?`,
+    );
+    if (!confirmDelete) return;
+
+    const { error } = await supabase.from("linhas").delete().eq("id", id);
+
+    if (error) {
+      toast.error("Erro ao deletar linha: " + error.message);
+    } else {
+      toast.success("Linha removida com sucesso!");
+      fetchData();
+    }
+  }
+
+  function closeLineModal() {
+    setShowAddLineModal(false);
+    setEditingLineId(null);
+    setLineCode("");
+    setLineName("");
+    setLineSchedule("");
+  }
+
+  const getCnhUrl = (file) =>
+    !file
+      ? ""
+      : file.startsWith("http")
+        ? file
+        : supabase.storage.from("driver-docs").getPublicUrl(file).data
+            .publicUrl;
 
   const stats = [
     {
@@ -314,6 +367,7 @@ export default function AdminPanel() {
 
   return (
     <div className="space-y-6">
+      {/* Cabeçalho */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-3">
           <div
@@ -337,6 +391,7 @@ export default function AdminPanel() {
         </div>
       </div>
 
+      {/* Cards de Estatísticas */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((s) => (
           <div key={s.label} className={`card p-5 ${s.bg} border-0`}>
@@ -357,6 +412,7 @@ export default function AdminPanel() {
         ))}
       </div>
 
+      {/* Tabs */}
       <div className="flex gap-1 bg-gray-100 dark:bg-gray-800/50 p-1.5 rounded-2xl w-fit">
         {[
           { id: "motoristas", label: "Motoristas", icon: Ic.driver },
@@ -379,6 +435,7 @@ export default function AdminPanel() {
         ))}
       </div>
 
+      {/* Aba de Motoristas */}
       {tab === "motoristas" && (
         <div className="space-y-6">
           <div>
@@ -437,13 +494,26 @@ export default function AdminPanel() {
                       </div>
                       <div className="flex gap-3">
                         <button
-                          onClick={() => aprovar(m.id)}
+                          onClick={() =>
+                            updateStatus(
+                              m.id,
+                              "approved",
+                              "Motorista aprovado!",
+                            )
+                          }
                           className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-emerald-500 hover:bg-emerald-600 shadow-lg shadow-emerald-500/25"
                         >
                           {Ic.check} Aprovar
                         </button>
                         <button
-                          onClick={() => rejeitar(m.id)}
+                          onClick={() =>
+                            updateStatus(
+                              m.id,
+                              "rejected",
+                              "Motorista rejeitado.",
+                              true,
+                            )
+                          }
                           className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/25"
                         >
                           {Ic.xmark} Rejeitar
@@ -456,71 +526,58 @@ export default function AdminPanel() {
             )}
           </div>
 
-          {aprovados.length > 0 && (
-            <div>
-              <h2 className="flex items-center gap-2 text-sm font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-4">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                Aprovados ({aprovados.length})
-              </h2>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                {aprovados.map((m) => (
-                  <div key={m.id} className="card p-4 flex items-center gap-3">
-                    <div
-                      className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center"
-                      style={{ color: "#059669" }}
-                    >
-                      {Ic.bus}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-gray-800 dark:text-white truncate">
-                        {m.name}
-                      </p>
-                      <p className="text-xs text-gray-500 truncate">
-                        {m.email}
-                      </p>
-                    </div>
-                    <Badge type="approved">aprovado</Badge>
+          {Object.entries({ aprovados, rejeitados }).map(
+            ([key, list]) =>
+              list.length > 0 && (
+                <div key={key}>
+                  <h2 className="flex items-center gap-2 text-sm font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-4">
+                    <span
+                      className={`w-2 h-2 rounded-full ${key === "aprovados" ? "bg-emerald-500" : "bg-red-500"}`}
+                    />
+                    {key === "aprovados" ? "Aprovados" : "Rejeitados"} (
+                    {list.length})
+                  </h2>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                    {list.map((m) => (
+                      <div
+                        key={m.id}
+                        className={`card p-4 flex items-center gap-3 ${key === "rejeitados" ? "opacity-60" : ""}`}
+                      >
+                        <div
+                          className="w-10 h-10 rounded-xl flex items-center justify-center"
+                          style={{
+                            color: key === "aprovados" ? "#059669" : "#dc2626",
+                            backgroundColor:
+                              key === "aprovados"
+                                ? "rgba(5,150,105,0.1)"
+                                : "rgba(220,38,38,0.1)",
+                          }}
+                        >
+                          {key === "aprovados" ? Ic.bus : Ic.xmark}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-bold text-gray-800 dark:text-white truncate">
+                            {m.name}
+                          </p>
+                          <p className="text-xs text-gray-500 truncate">
+                            {m.email}
+                          </p>
+                        </div>
+                        <Badge
+                          type={key === "aprovados" ? "approved" : "rejected"}
+                        >
+                          {key === "aprovados" ? "aprovado" : "rejeitado"}
+                        </Badge>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {rejeitados.length > 0 && (
-            <div>
-              <h2 className="flex items-center gap-2 text-sm font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-4">
-                <span className="w-2 h-2 rounded-full bg-red-500" />
-                Rejeitados ({rejeitados.length})
-              </h2>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                {rejeitados.map((m) => (
-                  <div
-                    key={m.id}
-                    className="card p-4 flex items-center gap-3 opacity-60"
-                  >
-                    <div
-                      className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center"
-                      style={{ color: "#dc2626" }}
-                    >
-                      {Ic.xmark}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-gray-800 dark:text-white truncate">
-                        {m.name}
-                      </p>
-                      <p className="text-xs text-gray-500 truncate">
-                        {m.email}
-                      </p>
-                    </div>
-                    <Badge type="rejected">rejeitado</Badge>
-                  </div>
-                ))}
-              </div>
-            </div>
+                </div>
+              ),
           )}
         </div>
       )}
 
+      {/* Aba de Linhas com Editar e Deletar */}
       {tab === "linhas" && (
         <div>
           <div className="flex items-center justify-between mb-4">
@@ -556,26 +613,42 @@ export default function AdminPanel() {
                     background: "linear-gradient(135deg, #1d4ed8, #0ea5e9)",
                   }}
                 >
-                  {l.code}
+                  {l.codigo}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-gray-800 dark:text-white">
-                    {l.name}
+                    {l.nome}
                   </p>
                   <p className="text-xs text-gray-500">
-                    {l.schedule || "Horários não definidos"}
+                    {l.horario || "Horários não definidos"}
                   </p>
                 </div>
                 <Badge type={l.status}>{l.status || "ativa"}</Badge>
-                <button className="p-2 rounded-xl text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all">
-                  {Ic.edit}
-                </button>
+
+                {/* Grupo de ações: Editar e Deletar */}
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => openEditModal(l)}
+                    className="p-2 rounded-xl text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
+                    title="Editar Linha"
+                  >
+                    {Ic.edit}
+                  </button>
+                  <button
+                    onClick={() => handleDeleteLine(l.id, l.codigo)}
+                    className="p-2 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+                    title="Excluir Linha"
+                  >
+                    {Ic.trash}
+                  </button>
+                </div>
               </div>
             ))}
           </div>
         </div>
       )}
 
+      {/* Aba de Mapa */}
       {tab === "mapa" && (
         <div>
           <h2 className="text-sm font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-4">
@@ -622,10 +695,10 @@ export default function AdminPanel() {
         </div>
       )}
 
-      {/* Modal de Criação de Nova Linha */}
+      {/* Modal Dinâmico de Criação/Edição de Linha */}
       {showAddLineModal && (
         <div
-          onClick={() => setShowAddLineModal(false)}
+          onClick={closeLineModal}
           className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
         >
           <div
@@ -634,16 +707,16 @@ export default function AdminPanel() {
           >
             <div className="p-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
               <h3 className="text-lg font-black text-gray-900 dark:text-white">
-                Cadastrar Nova Linha
+                {editingLineId ? "Editar Linha" : "Cadastrar Nova Linha"}
               </h3>
               <button
-                onClick={() => setShowAddLineModal(false)}
+                onClick={closeLineModal}
                 className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 transition-colors"
               >
                 {Ic.xmark}
               </button>
             </div>
-            <form onSubmit={handleCreateLine} className="p-5 space-y-4">
+            <form onSubmit={handleSaveLine} className="p-5 space-y-4">
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5">
                   Código da Linha (Número/ID)
@@ -688,7 +761,7 @@ export default function AdminPanel() {
               <div className="flex gap-3 pt-2">
                 <button
                   type="button"
-                  onClick={() => setShowAddLineModal(false)}
+                  onClick={closeLineModal}
                   className="w-1/2 px-4 py-2.5 rounded-xl text-sm font-semibold border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                   disabled={submittingLine}
                 >
@@ -699,7 +772,11 @@ export default function AdminPanel() {
                   className="w-1/2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20 flex items-center justify-center transition-colors"
                   disabled={submittingLine}
                 >
-                  {submittingLine ? "Salvando..." : "Salvar Linha"}
+                  {submittingLine
+                    ? "Salvando..."
+                    : editingLineId
+                      ? "Atualizar"
+                      : "Salvar Linha"}
                 </button>
               </div>
             </form>
