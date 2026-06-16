@@ -16,14 +16,16 @@ export function AuthProvider({ children }) {
       }
     });
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        fetchProfile(session.user.id);
-      } else {
-        setUser(null);
-        setLoading(false);
-      }
-    });
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (session) {
+          fetchProfile(session.user.id);
+        } else {
+          setUser(null);
+          setLoading(false);
+        }
+      },
+    );
 
     return () => listener?.subscription.unsubscribe();
   }, []);
@@ -65,7 +67,9 @@ export function AuthProvider({ children }) {
 
     if (profile.role !== expectedRole) {
       await supabase.auth.signOut();
-      throw new Error(`Este usuário não é ${expectedRole}.`);
+      throw new Error(
+        `Este usuário não possui o nível de acesso: ${expectedRole}.`,
+      );
     }
 
     if (expectedRole === "driver" && profile.driver_status !== "approved") {
@@ -81,11 +85,9 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
-  // Aqui está a grande alteração do Upload para o Storage
   const registerDriver = async ({ name, email, password, cpf, cnhFile }) => {
     if (!cnhFile) throw new Error("O arquivo da CNH é obrigatório.");
 
-    // 1. Cadastra o usuário no Auth
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -94,12 +96,11 @@ export function AuthProvider({ children }) {
 
     if (error) throw error;
 
-    // 2. Faz o Upload da imagem da CNH para o Storage "driver-docs"
-    const fileExt = cnhFile.name.split('.').pop();
+    const fileExt = cnhFile.name.split(".").pop();
     const fileName = `${data.user.id}-${Date.now()}.${fileExt}`;
-    
+
     const { error: uploadError } = await supabase.storage
-      .from('driver-docs')
+      .from("driver-docs")
       .upload(fileName, cnhFile);
 
     if (uploadError) {
@@ -107,10 +108,8 @@ export function AuthProvider({ children }) {
       throw new Error("Não foi possível enviar a imagem da CNH.");
     }
 
-    // 3. Aguarda a Trigger do banco criar a linha do perfil
     await new Promise((r) => setTimeout(r, 800));
 
-    // 4. Atualiza a tabela profiles com o NOME do arquivo final
     const { error: updateError } = await supabase
       .from("profiles")
       .update({ cpf, cnh_image: fileName, driver_status: "pending" })
@@ -143,7 +142,16 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, registerDriver, registerPassenger }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        logout,
+        registerDriver,
+        registerPassenger,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

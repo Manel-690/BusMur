@@ -1,4 +1,9 @@
-import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  HashRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -24,7 +29,11 @@ export default function App() {
           <Toaster
             position="top-right"
             toastOptions={{
-              style: { fontFamily: "'DM Sans', sans-serif", fontSize: "14px", fontWeight: "600" },
+              style: {
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: "14px",
+                fontWeight: "600",
+              },
               duration: 3000,
             }}
           />
@@ -36,13 +45,62 @@ export default function App() {
             <Route path="/instalar" element={<Instalacao />} />
 
             {/* Rotas Protegidas */}
-            <Route path="/linhas" element={<ProtectedRoute><Linhas /></ProtectedRoute>} />
-            <Route path="/linhas/:id" element={<ProtectedRoute><LinhaDetalhe /></ProtectedRoute>} />
-            <Route path="/mapa" element={<ProtectedRoute><Mapa /></ProtectedRoute>} />
-            <Route path="/notificacoes" element={<ProtectedRoute><Notificacoes /></ProtectedRoute>} />
-            <Route path="/motorista" element={<ProtectedRoute roles={["driver"]}><PainelMotorista /></ProtectedRoute>} />
-            <Route path="/admin" element={<ProtectedRoute roles={["admin"]}><AdminPanel /></ProtectedRoute>} />
-            <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
+            <Route
+              path="/linhas"
+              element={
+                <ProtectedRoute>
+                  <Linhas />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/linhas/:id"
+              element={
+                <ProtectedRoute>
+                  <LinhaDetalhe />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/mapa"
+              element={
+                <ProtectedRoute>
+                  <Mapa />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/notificacoes"
+              element={
+                <ProtectedRoute>
+                  <Notificacoes />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/motorista"
+              element={
+                <ProtectedRoute roles={["driver"]}>
+                  <PainelMotorista />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <AdminPanel />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/configuracoes"
+              element={
+                <ProtectedRoute>
+                  <Configuracoes />
+                </ProtectedRoute>
+              }
+            />
 
             {/* Redirecionamentos padrão */}
             <Route path="/" element={<Navigate to="/login" replace />} />
